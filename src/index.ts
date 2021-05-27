@@ -130,7 +130,12 @@ const copyPrivateFiles = async (course: Course, privateProblemPaths: string[], c
             });
             const imageFrom = path.join(webworkFileLocation, path.dirname(privateProblemPath), imagePath);
             const imageTo = path.join(workingTempDirectory, course.id.toString(), course.name, path.dirname(privateProblemPath), imagePath);
-            assetPromises.push(fs.copy(imageFrom, imageTo).catch(e => { throw new Error(`Prob: ${to}; ${e.toString()}`)}))
+            const assetPromise = fs.copy(imageFrom, imageTo).catch(e => { 
+                throw new Error(`Prob: ${to}; ${e.toString()}`)
+            });
+            // This is to avoid promise rejection error, the promise is actually handled with assetCopyErrorPromises
+            assetPromise.catch(() => {});
+            assetPromises.push(assetPromise)
         }
     });
     const privateCopyErrorPromises = (await Promise.allSettled(privateCopyPromises)).map(async (promise) => promise.status === 'rejected' && fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${promise.reason.toString()}\n`));
