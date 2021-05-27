@@ -258,7 +258,13 @@ const tarUp = (contentDirectory: string) => new Promise((resolve, reject) => {
 });
 
 (async () => {
-    const courseId = -1;
+    await configurations.loadPromise;
+    const firstArg = process.argv[2];
+    const courseId = parseInt(firstArg, 10);
+    console.log(`Exporting ${courseId}`);
+    if(_.isNaN(courseId)) {
+        throw new Error(`Could not parse first arguement ${firstArg}`)
+    }
     if(fs.existsSync(workingTempDirectory)) {
         await fs.remove(workingTempDirectory);
     }
