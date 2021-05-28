@@ -35,7 +35,7 @@ const coreSetup = async () => {
     const { version: coreVersion } = require(`../${pathToCore}/package.json`);
     const coreLocation = `${pathToCore}/rederly-course-export-${coreVersion}.tgz`;
 
-    if (!fs.existsSync(coreLocation)) {
+    if (fs.existsSync(coreLocation)) {
         console.log(`Deleting ${coreLocation}`);
         await fs.remove(coreLocation);
     }
