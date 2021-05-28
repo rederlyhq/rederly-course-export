@@ -20,4 +20,4 @@ export namespace Constants {
         export const SHOW_SOLUTIONS_DELAY_IN_DAYS = 1;
         export const INFINITE_ATTEMPT_NUMBER = 0;
     }
-};
+}

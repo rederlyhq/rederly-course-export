@@ -1,16 +1,17 @@
-import Course from "./database/models/course";
-import CourseTopicContent from "./database/models/course-topic-content";
-import CourseUnitContent from "./database/models/course-unit-content";
-import CourseWWTopicQuestion from "./database/models/course-ww-topic-question";
+import Course from './database/models/course';
+import CourseTopicContent from './database/models/course-topic-content';
+import CourseUnitContent from './database/models/course-unit-content';
+import CourseWWTopicQuestion from './database/models/course-ww-topic-question';
 import './database';
 import { getDefObjectFromTopic } from '@rederly/rederly-utils';
 import fs from 'fs-extra';
 import path from 'path';
-import _ from "lodash";
-import TopicAssessmentInfo from "./database/models/topic-assessment-info";
-import CourseQuestionAssessmentInfo from "./database/models/course-question-assessment-info";
-import configurations from "./configurations";
+import _ from 'lodash';
+import TopicAssessmentInfo from './database/models/topic-assessment-info';
+import CourseQuestionAssessmentInfo from './database/models/course-question-assessment-info';
+import configurations from './configurations';
 import tar from 'tar';
+import logger from './utilities/logger';
 
 const { workingTempDirectory, webworkFileLocation } = configurations.paths;
 
@@ -71,25 +72,26 @@ const getPrivateProblemPathsFromCourse = (course: Course): string[] => {
                 ) ?? [] as string[]
             ) ?? [] as string[]
         ) ?? [] as string[]
-    ).filter((wwPath: string) => wwPath.startsWith('private/')))
+    ).filter((wwPath: string) => wwPath.startsWith('private/')));
 };
 
 /**
  * For development, this code generates files to make sure the packaging works as expected
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const generateTestPrivateFiles = async (privateProblemPaths: string[]) => {
     const testPromises = privateProblemPaths.map(async (privateProblemPath) => {
         const filepath = `${webworkFileLocation}/${privateProblemPath}`;
-        console.log(`Generating: ${filepath}`);
+        logger.info(`Generating: ${filepath}`);
         await fs.mkdirp(path.dirname(filepath));
         if (fs.existsSync(filepath)) {
-            console.warn('Dev code to generate private files run but file exists');
+            logger.warn('Dev code to generate private files run but file exists');
         } else {
             await fs.writeFile(filepath, `STARTTEST ${privateProblemPath} TESTEND`);
         }
     });
     await Promise.all(testPromises);
-}
+};
 
 /**
  * Copy private files to temp folder for tarring
@@ -112,14 +114,14 @@ const copyPrivateFiles = async (course: Course, privateProblemPaths: string[], c
                 const insideRegex = new RegExp(`${quote[0]}(.*)${quote[1]}`, 'g');
                 const matches = imagePath.matchAll(insideRegex);
                 // if (matches.length > 1) {
-                //     console.warn(`findFilesFromPGFile: insideRegex expected 1 match but got ${matches.length}`);
+                //     logger.warn(`findFilesFromPGFile: insideRegex expected 1 match but got ${matches.length}`);
                 // }
                 // Will not be nil if different quotes
                 const thisMatch = matches.next().value;
                 if (!_.isNil(thisMatch)) {
                     // index 1 should be first capture group, should not be nil
                     if (_.isNil(thisMatch[1])) {
-                        console.error(`findFilesFromPGFile: No capture group for quote ${quote[0]}`);
+                        logger.error(`findFilesFromPGFile: No capture group for quote ${quote[0]}`);
                     } else {
                         imagePath = thisMatch[1];
                     }
@@ -131,11 +133,12 @@ const copyPrivateFiles = async (course: Course, privateProblemPaths: string[], c
             const imageFrom = path.join(webworkFileLocation, path.dirname(privateProblemPath), imagePath);
             const imageTo = path.join(workingTempDirectory, course.id.toString(), course.name, path.dirname(privateProblemPath), imagePath);
             const assetPromise = fs.copy(imageFrom, imageTo).catch(e => { 
-                throw new Error(`Prob: ${to}; ${e.toString()}`)
+                throw new Error(`Prob: ${to}; ${e.toString()}`);
             });
             // This is to avoid promise rejection error, the promise is actually handled with assetCopyErrorPromises
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             assetPromise.catch(() => {});
-            assetPromises.push(assetPromise)
+            assetPromises.push(assetPromise);
         }
     });
     const privateCopyErrorPromises = (await Promise.allSettled(privateCopyPromises)).map(async (promise) => promise.status === 'rejected' && fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${promise.reason.toString()}\n`));
@@ -143,7 +146,7 @@ const copyPrivateFiles = async (course: Course, privateProblemPaths: string[], c
     fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${promise.reason.toString()}\n`));
     await Promise.all(privateCopyErrorPromises);
     await Promise.all(assetCopyErrorPromises);
-}
+};
 
 /**
  * Get data from database for export
@@ -204,10 +207,10 @@ const fetchData = async (courseId: number): Promise<Course> => {
     });
 
     if (_.isNil(course)) {
-        throw new Error(`Course (${courseId}) not found.`)
+        throw new Error(`Course (${courseId}) not found.`);
     }
     return course;
-}
+};
 
 /**
  * Iterate through all the topics and create def files for each one
@@ -241,8 +244,8 @@ const generateDefFiles = async (course: Course, tmpDirectory: string) => {
     await Promise.all(unitPromises ?? [Promise.resolve()]);
     return {
         contentDirectory: contentDirectory
-    }
-}
+    };
+};
 
 /**
  * In the parent directory of the content directory (which should be the working directory) tar up the content directory
@@ -256,7 +259,7 @@ const tarUp = (contentDirectory: string) => new Promise((resolve, reject) => {
         gzip: true,
         cwd: path.resolve(workingDirectory)
     }, [name]
-    ).pipe(fs.createWriteStream(path.join(workingDirectory, `${name}.tgz`)))
+    ).pipe(fs.createWriteStream(path.join(workingDirectory, `${name}.tgz`)));
 
     tarStream.on('finish', resolve);
     tarStream.on('error', reject);
@@ -266,9 +269,9 @@ const tarUp = (contentDirectory: string) => new Promise((resolve, reject) => {
     await configurations.loadPromise;
     const firstArg = process.argv[2];
     const courseId = parseInt(firstArg, 10);
-    console.log(`Exporting ${courseId}`);
+    logger.info(`Exporting ${courseId}`);
     if(_.isNaN(courseId)) {
-        throw new Error(`Could not parse first arguement ${firstArg}`)
+        throw new Error(`Could not parse first arguement ${firstArg}`);
     }
     if(fs.existsSync(workingTempDirectory)) {
         await fs.remove(workingTempDirectory);
@@ -289,4 +292,4 @@ const tarUp = (contentDirectory: string) => new Promise((resolve, reject) => {
     await tarUp(contentDirectory);
 
     // await fs.remove(path.join(workingTempDirectory, courseId.toString()));
-})().catch(err => console.error(err));
+})().catch(err => logger.error(err));

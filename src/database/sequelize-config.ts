@@ -45,7 +45,8 @@ const sequelizeConfig: SequelizeOptions = {
     logging: logging && formatter(),
     dialectOptions: {
         // set a limit for how long a query can take to run (in millis)
-        // eslint-disable-next-line @typescript-eslint/camelcase
+        // Can't disable this right now because air bnb issue https://github.com/typescript-eslint/typescript-eslint/issues/2077#issuecomment-634811363
+        // // eslint-disable-next-line @typescript-eslint/camelcase
         statement_timeout: statementTimeout
     },
     define: {

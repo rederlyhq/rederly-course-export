@@ -1,4 +1,5 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 import * as _ from 'lodash';
 import { LoggingLevelType, LOGGING_LEVEL } from './utilities/logger-logging-levels';
 import * as crypto from 'crypto';
@@ -40,7 +41,7 @@ function readStringValue(key: string, defaultValue?: string | null | undefined):
         return defaultValue ?? null;
     }
     return value;
-};
+}
 
 function readIntValue(key: string, defaultValue: number): number;
 function readIntValue(key: string, defaultValue?: number | null | undefined): number | null;
@@ -52,7 +53,7 @@ function readIntValue(key: string, defaultValue?: number | null | undefined): nu
         return defaultValue ?? null;
     }
     return value;
-};
+}
 
 function readBooleanValue(key: string, defaultValue: boolean): boolean;
 function readBooleanValue(key: string, defaultValue?: boolean | null | undefined): boolean | null;
@@ -64,12 +65,7 @@ function readBooleanValue(key: string, defaultValue?: boolean | null | undefined
         return defaultValue ?? null;
     }
     return value;
-};
-
-// Defaults to 1 day
-const tokenLife = readIntValue('AUTH_TOKEN_LIFE', 1440);
-const forgotPasswordTokenLife = readIntValue('AUTH_FORGOT_PASSWORD_TOKEN_LIFE', tokenLife);
-const verifyInstutionalEmailTokenLife = readIntValue('AUTH_VERIFY_INSTUTIONAL_EMAIL_TOKEN_LIFE', tokenLife);
+}
 
 // Developer check, would be cool to have a preprocessor strip this code out
 if (process.env.NODE_ENV !== 'production') {
