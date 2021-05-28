@@ -130,8 +130,6 @@ const configurations = {
         loggingLevel,
         loggingLevelForFile,
         loggingLevelForConsole,
-        urlInMeta: readBooleanValue('LOGGING_URL_IN_META', false),
-        metaInLogs: readBooleanValue('LOGGING_META_IN_LOGS', false),
         logJson: readBooleanValue('LOGGING_LOG_JSON', isProduction),
     },
     paths: {
