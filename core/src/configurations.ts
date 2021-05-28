@@ -124,29 +124,6 @@ const configurations = {
     //         interval: readIntValue('MONITORING_MEMORY_INTERVAL', 10000)
     //     }
     // },
-    // server: {
-    //     port: readStringValue('SERVER_PORT', '3001'),
-    //     basePath: readStringValue('SERVER_BASE_PATH', '/backend-api'),
-    //     logInvalidlyPrefixedRequests: readBooleanValue('SERVER_LOG_INVALIDLY_PREFIXED_REQUESTS', true),
-    //     blockInvalidlyPrefixedRequests: readBooleanValue('SERVER_BLOCK_INVALIDLY_PREFIXED_REQUESTS', true),
-    //     logAccess: readBooleanValue('SERVER_LOG_ACCESS', true),
-    //     logAccessSlowRequestThreshold: readIntValue('SERVER_LOG_ACCESS_SLOW_REQUEST_THRESHOLD', 30000),
-    //     requestTimeout: readIntValue('SERVER_REQUEST_TIMEOUT', 150000),
-    //     limiter: {
-    //         windowLength: readIntValue('SERVER_LIMITER_WINDOW_LENGTH', 60000),
-    //         maxRequests: readIntValue('SERVER_LIMITER_MAX_REQUESTS', 100),
-    //     },
-    // },
-    db: {
-        host: readStringValue('DB_HOST', 'localhost'),
-        port: readIntValue('DB_PORT', 5432),
-        name: readStringValue('DB_NAME', 'rederly'),
-        user: readStringValue('DB_USER', 'postgres'),
-        password: readStringValue('DB_PASSWORD', 'password'),
-        logging: readBooleanValue('DB_LOGGING', false),
-        sync: readBooleanValue('DB_SYNC', false),
-        statementTimeout: readIntValue('DB_STATEMENT_TIMEOUT', 60000),
-    },
     // If we put logging level in the configurations we have a cyclic dependency if we ever want to log from this file...
     logging: {
         loggingLevel,

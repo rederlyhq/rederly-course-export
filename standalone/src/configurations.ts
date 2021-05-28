@@ -3,6 +3,8 @@ dotenv.config();
 import * as _ from 'lodash';
 import * as crypto from 'crypto';
 
+import parentConfigurations from 'rederly-course-export/lib/configurations';
+
 let logs: Array<string> | null = [];
 
 const fromBooleanField = (value: string | undefined | null): boolean | null => {
@@ -66,19 +68,9 @@ function readBooleanValue(key: string, defaultValue?: boolean | null | undefined
     return value;
 }
 
-const nodeEnv = readStringValue('NODE_ENV', 'development');
-// needs to be read ahead of of time to be used in configurations
-const isProduction = nodeEnv === 'production';
 
 const configurations = {
-    app: {
-        nodeEnv: nodeEnv,
-        isProduction: isProduction,
-        logMissingConfigurations: readBooleanValue('LOG_MISSING_CONFIGURATIONS', true),
-        failOnMissingConfigurations: readBooleanValue('FAIL_ON_MISSING_CONFIGURATIONS', isProduction),
-        configSalt: readStringValue('CONFIG_SALT', ''),
-        autoDeleteTemp: readBooleanValue('AUTO_DELETE_TEMP_FILES', true),
-    },
+    ...parentConfigurations,
     // monitoring: {
     //     memory: {
     //         debugThreshold: readIntValue('MONITORING_MEMORY_DEBUG_THRESHOLD', 40),
@@ -86,19 +78,6 @@ const configurations = {
     //         errorThreshold: readIntValue('MONITORING_MEMORY_ERROR_THRESHOLD', 80),
     //         interval: readIntValue('MONITORING_MEMORY_INTERVAL', 10000)
     //     }
-    // },
-    // server: {
-    //     port: readStringValue('SERVER_PORT', '3001'),
-    //     basePath: readStringValue('SERVER_BASE_PATH', '/backend-api'),
-    //     logInvalidlyPrefixedRequests: readBooleanValue('SERVER_LOG_INVALIDLY_PREFIXED_REQUESTS', true),
-    //     blockInvalidlyPrefixedRequests: readBooleanValue('SERVER_BLOCK_INVALIDLY_PREFIXED_REQUESTS', true),
-    //     logAccess: readBooleanValue('SERVER_LOG_ACCESS', true),
-    //     logAccessSlowRequestThreshold: readIntValue('SERVER_LOG_ACCESS_SLOW_REQUEST_THRESHOLD', 30000),
-    //     requestTimeout: readIntValue('SERVER_REQUEST_TIMEOUT', 150000),
-    //     limiter: {
-    //         windowLength: readIntValue('SERVER_LIMITER_WINDOW_LENGTH', 60000),
-    //         maxRequests: readIntValue('SERVER_LIMITER_MAX_REQUESTS', 100),
-    //     },
     // },
     db: {
         host: readStringValue('DB_HOST', 'localhost'),
@@ -110,12 +89,15 @@ const configurations = {
         sync: readBooleanValue('DB_SYNC', false),
         statementTimeout: readIntValue('DB_STATEMENT_TIMEOUT', 60000),
     },
-    // If we put logging level in the configurations we have a cyclic dependency if we ever want to log from this file...
-    paths: {
-        workingTempDirectory: readStringValue('WORKING_TEMP_DIRECTORY', 'tmp'),
-        webworkFileLocation: readStringValue('WEBWORK_FILE_LOCATION', 'test-webwork-files')
-    },
-    loadPromise: new Promise<void>((resolve, reject) => {
+    loadPromise: new Promise<void>(async (resolve, reject) => {
+        try {
+            // check parent options first
+            await parentConfigurations.loadPromise;
+        } catch(e) {
+            reject(e);
+            return;
+        }
+
         // Avoid cyclic dependency by deferring the logging until after all the imports are done
         setTimeout(() => {
             // Can't use require statement in callback
@@ -132,16 +114,6 @@ const configurations = {
                 });
             }
 
-            if (configurations.app.isProduction && !configurations.app.autoDeleteTemp) {
-                logger.warn('Application configured to run in production but not to auto delete temp files! AUTO_DELETE_TEMP_FILES should always be true unless debugging!!');
-            }            
-            
-            // Log count defaults to 1 so it fails on null which has already been logged
-            if (configurations.app.failOnMissingConfigurations && (logs?.length ?? 1 > 0)) {
-                return reject(new Error(`Missing configurations:\n${logs?.join('\n') ?? 'Logs are null'}`));
-            } else {
-                resolve();
-            }
             // After we log the warnings we can drop the logs, figured it would cause cleanup
             logs = null;
         });
