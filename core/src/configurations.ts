@@ -43,6 +43,7 @@ function readStringValue(key: string, defaultValue?: string | null | undefined):
     return value;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function readIntValue(key: string, defaultValue: number): number;
 function readIntValue(key: string, defaultValue?: number | null | undefined): number | null;
 function readIntValue(key: string, defaultValue?: number | null | undefined): number | null {
@@ -135,7 +136,7 @@ const configurations = {
     },
     paths: {
         workingTempDirectory: readStringValue('WORKING_TEMP_DIRECTORY', 'tmp'),
-        webworkFileLocation: readStringValue('WEBWORK_FILE_LOCATION', 'test-webwork-files')
+        webworkFileLocation: readStringValue('WEBWORK_FILE_LOCATION', '../core/test-webwork-files')
     },
     loadPromise: new Promise<void>((resolve, reject) => {
         // Avoid cyclic dependency by deferring the logging until after all the imports are done

@@ -182,20 +182,21 @@ const generateDefFiles = async (course: RederlyCourse, tmpDirectory: string) => 
  * @param contentDirectory The directory to tar up
  * @returns a promise that resolves when the stream finishes or rejects on error
  */
-const tarUp = (contentDirectory: string) => new Promise((resolve, reject) => {
+const tarUp = (contentDirectory: string) => new Promise<string>((resolve, reject) => {
     const name = path.basename(contentDirectory);
     const workingDirectory = path.dirname(contentDirectory);
+    const fileName = `${path.join(path.resolve(path.dirname(contentDirectory)), `${name}.tgz`)}`;
     const tarStream = tar.create({
         gzip: true,
         cwd: path.resolve(workingDirectory)
     }, [name]
     ).pipe(fs.createWriteStream(path.join(workingDirectory, `${name}.tgz`)));
 
-    tarStream.on('finish', resolve);
+    tarStream.on('finish', () => resolve(fileName));
     tarStream.on('error', reject);
 });
 
-export const run = async (course: RederlyCourse) => {
+export const run = async (course: RederlyCourse): Promise<string> => {
     await configurations.loadPromise;
     if(fs.existsSync(workingTempDirectory)) {
         await fs.remove(workingTempDirectory);
@@ -212,7 +213,8 @@ export const run = async (course: RederlyCourse) => {
 
     await copyPrivateFiles(course, privateProblemPaths, contentDirectory);
 
-    await tarUp(contentDirectory);
-
+    const newFilename = await tarUp(contentDirectory);
+    logger.info(`"${newFilename}" generated`);
+    return newFilename;
     // await fs.remove(path.join(workingTempDirectory, courseId.toString()));
-}
+};

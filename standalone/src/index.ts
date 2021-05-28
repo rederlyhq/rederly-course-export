@@ -1,10 +1,10 @@
 import './database';
-import Course from "./database/models/course";
-import CourseQuestionAssessmentInfo from "./database/models/course-question-assessment-info";
-import CourseTopicContent from "./database/models/course-topic-content";
-import CourseUnitContent from "./database/models/course-unit-content";
-import CourseWWTopicQuestion from "./database/models/course-ww-topic-question";
-import TopicAssessmentInfo from "./database/models/topic-assessment-info";
+import Course from './database/models/course';
+import CourseQuestionAssessmentInfo from './database/models/course-question-assessment-info';
+import CourseTopicContent from './database/models/course-topic-content';
+import CourseUnitContent from './database/models/course-unit-content';
+import CourseWWTopicQuestion from './database/models/course-ww-topic-question';
+import TopicAssessmentInfo from './database/models/topic-assessment-info';
 
 import { run } from 'rederly-course-export';
 import logger from 'rederly-course-export/lib/utilities/logger';
