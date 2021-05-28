@@ -5,6 +5,7 @@ import _ from 'lodash';
 import configurations from './configurations';
 import tar from 'tar';
 import logger from './utilities/logger';
+import { getAllMatches } from './utilities/string-helper';
 import { RederlyCourse, RederlyTopic, RederlyQuestion } from './models';
 
 const { workingTempDirectory, webworkFileLocation } = configurations.paths;
@@ -101,17 +102,18 @@ const copyPrivateFiles = async (course: RederlyCourse, privateProblemPaths: stri
         await fs.mkdirp(path.dirname(to));
         await fs.copy(from, to);
         const pgContent = (await fs.readFile(from)).toString();
-        for(const match of pgContent.matchAll(imageInPGFileRegex)) {
+        const imageInPgFileMatches = getAllMatches(imageInPGFileRegex, pgContent);
+        for(const match of imageInPgFileMatches) {
             let imagePath: string = match[1] ?? match[2];
 
             perlQuotes.some(quote => {
                 const insideRegex = new RegExp(`${quote[0]}(.*)${quote[1]}`, 'g');
-                const matches = imagePath.matchAll(insideRegex);
-                // if (matches.length > 1) {
-                //     logger.warn(`findFilesFromPGFile: insideRegex expected 1 match but got ${matches.length}`);
-                // }
+                const quoteMatches = getAllMatches(insideRegex, imagePath);
+                if (quoteMatches.length > 1) {
+                    logger.warn(`findFilesFromPGFile: insideRegex expected 1 match but got ${quoteMatches.length}`);
+                }
                 // Will not be nil if different quotes
-                const thisMatch = matches.next().value;
+                const thisMatch = quoteMatches[0];
                 if (!_.isNil(thisMatch)) {
                     // index 1 should be first capture group, should not be nil
                     if (_.isNil(thisMatch[1])) {

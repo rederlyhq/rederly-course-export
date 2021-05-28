@@ -1,6 +1,7 @@
 #!/usr/bin/node
 
 const { spawn } = require('child_process');
+const fs = require('fs-extra');
 
 const runCommand = (options) => new Promise((resolve, reject) => {
     const { command, args, cwd } = options;
@@ -31,6 +32,14 @@ const runCommand = (options) => new Promise((resolve, reject) => {
 
 const coreSetup = async () => {
     const pathToCore = '../core';
+    const { version: coreVersion } = require(`../${pathToCore}/package.json`);
+    const coreLocation = `${pathToCore}/rederly-course-export-${coreVersion}.tgz`;
+
+    if (!fs.existsSync(coreLocation)) {
+        console.log(`Deleting ${coreLocation}`);
+        await fs.remove(coreLocation);
+    }
+
     await runCommand({
         command: 'npm',
         args: ['install'],
@@ -46,11 +55,10 @@ const coreSetup = async () => {
         args: ['pack'],
         cwd: pathToCore
     });
-
-    const { version } = require(`../${pathToCore}/package.json`);
+    
     await runCommand({
         command: 'npm',
-        args: ['install', `${pathToCore}/rederly-course-export-${version}.tgz`],
+        args: ['install', coreLocation],
     });
 };
 
