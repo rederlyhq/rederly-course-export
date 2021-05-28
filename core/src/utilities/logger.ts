@@ -16,10 +16,6 @@ if (!_.isNil(loggingLevelForConsole)) {
     new winston.transports.Console({
       level: loggingLevelForConsole.key,
       format: configurations.logging.logJson ? winston.format.printf(info => {
-        const { level } = info;
-        if (!configurations.logging.urlInMeta && level !== 'error' && level !== 'warn') {
-          delete info.metadata.requestMeta?.url;
-        }
         return JSON.stringify(info);
       }) : format.combine(
         winston.format.colorize(),
@@ -28,12 +24,7 @@ if (!_.isNil(loggingLevelForConsole)) {
         winston.format.printf(info => {
           const requestMetadata = _.omitBy(info.metadata.requestMeta, _.isUndefined);
           const requestId = `request-${(requestMetadata.requestId ?? 'null')}`;
-          let message = `${info.timestamp} [${info.level}]: ${requestId} ${info.message}`;
-          if (configurations.logging.metaInLogs) {
-            const requestMetadataString = _.isEmpty(requestMetadata) ? '' : JSON.stringify(requestMetadata);
-            message += requestMetadataString;
-          }
-          return message;
+          return `${info.timestamp} [${info.level}]: ${requestId} ${info.message}`;
         }),
       )
     })

@@ -10,6 +10,7 @@
     "start:debug:watch": "nodemon --inspect=5858 ./src/index.ts",
     "lint": "eslint src/ --ext .ts",
     "build": "tsc",
+    "run:build": "node ./ts-built/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "preinstall": "node ./utility-scripts/pre-install.js"
   },
