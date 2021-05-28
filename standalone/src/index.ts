@@ -27,6 +27,7 @@ import logger from 'rederly-course-export/lib/utilities/logger';
             where: {
                 active: true,
             },
+            order: ['contentOrder'],
             attributes: ['id', 'name'],
             required: false,
             include: [{
@@ -37,12 +38,14 @@ import logger from 'rederly-course-export/lib/utilities/logger';
                 },
                 attributes: ['id', 'name', 'topicTypeId', 'startDate', 'endDate', 'deadDate', 'partialExtend', 'description'],
                 required: false,
+                order: ['contentOrder'],
                 include: [{
                     model: CourseWWTopicQuestion,
                     as: 'questions',
                     where: {
                         active: true
                     },
+                    order: ['problemOrder'],
                     attributes: ['id', 'problemNumber', 'webworkQuestionPath', 'weight', 'maxAttempts'],
                     required: false,
                     include: [{
