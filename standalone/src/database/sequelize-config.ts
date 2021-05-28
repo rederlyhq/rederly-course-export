@@ -2,7 +2,7 @@ import configurations from '../configurations';
 import { Sequelize, Options as SequelizeOptions } from 'sequelize';
 import cls = require('cls-hooked');
 import { Constants } from '../constants';
-import logger from '../utilities/logger';
+import logger from 'rederly-course-export/lib/utilities/logger';
 import winston = require('winston');
 const namespace = cls.createNamespace(Constants.Application.REDERLY_CLS_NAMESPACE_NAME);
 Sequelize.useCLS(namespace);

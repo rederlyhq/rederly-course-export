@@ -1,17 +1,107 @@
-import Course from './database/models/course';
-import CourseTopicContent from './database/models/course-topic-content';
-import CourseUnitContent from './database/models/course-unit-content';
-import CourseWWTopicQuestion from './database/models/course-ww-topic-question';
-import './database';
 import { getDefObjectFromTopic } from '@rederly/rederly-utils';
 import fs from 'fs-extra';
 import path from 'path';
 import _ from 'lodash';
-import TopicAssessmentInfo from './database/models/topic-assessment-info';
-import CourseQuestionAssessmentInfo from './database/models/course-question-assessment-info';
 import configurations from './configurations';
 import tar from 'tar';
 import logger from './utilities/logger';
+
+
+export interface RederlyCourse {
+    id: number;
+    active: boolean;
+    curriculumId: number;
+    instructorId: number;
+    universityId: number;
+    name: string;
+    code: string;
+    start: Date;
+    end: Date;
+    sectionCode: string;
+    semesterCode: string;
+    originatingCourseId: number;
+
+    units?: RederlyUnit[];
+}
+
+export interface RederlyUnit {
+    id: number;
+    courseId: number;
+    name: string;
+    active: boolean;
+    contentOrder: number;
+    curriculumUnitId: number;
+    originatingUnitId: number;
+
+    topics?: RederlyTopic[];
+}
+
+export interface RederlyTopic {
+    id: number;
+    curriculumTopicContentId: number;
+    courseUnitContentId: number;
+    topicTypeId: number;
+    name: string;
+    active: boolean;
+    contentOrder: number;
+    startDate: Date;
+    endDate: Date;
+    deadDate: Date;
+    partialExtend: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    originatingTopicContentId: number;
+    gradeIdsThatNeedRetro: number[];
+    retroStartedTime: Date | null;
+    description: unknown;
+
+    questions?: RederlyQuestion[];
+    topicAssessmentInfo?: RederlyTopicAssessmentInfo;
+}
+
+export interface RederlyQuestion {
+    id: number;
+    courseTopicContentId: number;
+    problemNumber: number;
+    webworkQuestionPath: string;
+    weight: number;
+    maxAttempts: number;
+    hidden: boolean;
+    active: boolean;
+    optional: boolean;
+    curriculumQuestionId: number;
+    createdAt: Date;
+    updatedAt: Date;
+    courseQuestionAssessmentInfo?: RederlyQuestionAssessmentInfo;
+    originatingTopicQuestionId: number;
+}
+
+export interface RederlyQuestionAssessmentInfo {
+    id: number;
+    courseWWTopicQuestionId: number;
+    curriculumQuestionAssessmentInfoId: number;
+    randomSeedSet: Array<number>;
+    additionalProblemPaths: Array<string>;
+    active: boolean;
+    originatingQuestionAssessmentInfoId: number;
+}
+
+export interface RederlyTopicAssessmentInfo {
+    id: number;
+    courseTopicContentId: number;
+    hardCutoff: boolean;
+    hideHints: boolean;
+    showItemizedResults: boolean;
+    showTotalGradeImmediately: boolean;
+    hideProblemsAfterFinish: boolean;
+    randomizeOrder: boolean;
+    originatingTopicAssessmentInfoId: number;
+
+    duration: number;
+    maxVersions: number;
+    maxGradedAttemptsPerVersion: number;
+    versionDelay: number;
+}
 
 const { workingTempDirectory, webworkFileLocation } = configurations.paths;
 
@@ -63,7 +153,7 @@ export const imageInPGFileRegex = new RegExp(
  * @param course The course to flatten and get filter private problem paths from
  * @returns An array of problem paths that need to be copied
  */
-const getPrivateProblemPathsFromCourse = (course: Course): string[] => {
+const getPrivateProblemPathsFromCourse = (course: RederlyCourse): string[] => {
     return _.uniq(_.flattenDeep(
         course.units?.map(
             unit => unit.topics?.map(
@@ -99,7 +189,7 @@ const generateTestPrivateFiles = async (privateProblemPaths: string[]) => {
  * @param privateProblemPaths the paths of the private problems
  * @param contentDirectory where the private files should go
  */
-const copyPrivateFiles = async (course: Course, privateProblemPaths: string[], contentDirectory: string) => {
+const copyPrivateFiles = async (course: RederlyCourse, privateProblemPaths: string[], contentDirectory: string) => {
     const assetPromises: Promise<void>[] = [];
     const privateCopyPromises = privateProblemPaths.map(async (privateProblemPath) => {
         const from = path.join(webworkFileLocation, privateProblemPath);
@@ -149,70 +239,6 @@ const copyPrivateFiles = async (course: Course, privateProblemPaths: string[], c
 };
 
 /**
- * Get data from database for export
- * @param courseId The id of the course to fetch
- * @returns A course with it's units, topics, exam topic info, questions, exam question info
- */
-const fetchData = async (courseId: number): Promise<Course> => {
-    const course: Course | null = await Course.findOne({
-        where: {
-            active: true,
-            id: courseId
-        },
-        attributes: ['id', 'name'],
-        include: [{
-            model: CourseUnitContent,
-            as: 'units',
-            where: {
-                active: true,
-            },
-            attributes: ['id', 'name'],
-            required: false,
-            include: [{
-                model: CourseTopicContent,
-                as: 'topics',
-                where: {
-                    active: true
-                },
-                attributes: ['id', 'name', 'topicTypeId', 'startDate', 'endDate', 'deadDate', 'partialExtend', 'description'],
-                required: false,
-                include: [{
-                    model: CourseWWTopicQuestion,
-                    as: 'questions',
-                    where: {
-                        active: true
-                    },
-                    attributes: ['id', 'problemNumber', 'webworkQuestionPath', 'weight', 'maxAttempts'],
-                    required: false,
-                    include: [{
-                        model: CourseQuestionAssessmentInfo,
-                        as: 'courseQuestionAssessmentInfo',
-                        where: {
-                            active: true
-                        },
-                        attributes: ['randomSeedSet', 'additionalProblemPaths'],
-                        required: false,
-                    }]
-                }, {
-                    model: TopicAssessmentInfo,
-                    as: 'topicAssessmentInfo',
-                    where: {
-                        active: true
-                    },
-                    attributes: ['duration', 'hardCutoff', 'hideHints', 'hideProblemsAfterFinish', 'maxGradedAttemptsPerVersion', 'maxVersions', 'randomizeOrder', 'showItemizedResults', 'showTotalGradeImmediately', 'versionDelay'],
-                    required: false,
-                }]
-            }]
-        }]
-    });
-
-    if (_.isNil(course)) {
-        throw new Error(`Course (${courseId}) not found.`);
-    }
-    return course;
-};
-
-/**
  * Iterate through all the topics and create def files for each one
  * File structure:
  * /{COURSE_NAME}/privateFileErrors.txt // error that came up during export
@@ -224,7 +250,7 @@ const fetchData = async (courseId: number): Promise<Course> => {
  * contentDirectory: The directory that will eventually be tarred up
  * }
  */
-const generateDefFiles = async (course: Course, tmpDirectory: string) => {
+const generateDefFiles = async (course: RederlyCourse, tmpDirectory: string) => {
     const workingDirectory = path.join(tmpDirectory, course.id.toString());
 
     const contentDirectory = path.join(workingDirectory, course.name);
@@ -235,7 +261,7 @@ const generateDefFiles = async (course: Course, tmpDirectory: string) => {
             if (_.isNil(topic.questions)) {
                 throw new Error('questions is nil');
             }
-            const defObject = getDefObjectFromTopic(topic as Omit<CourseTopicContent, 'questions'> & {questions: CourseWWTopicQuestion[]});
+            const defObject = getDefObjectFromTopic(topic as Omit<RederlyTopic, 'questions'> & {questions: RederlyQuestion[]});
             const filePath = path.join(unitPath, `set${topic.name}.def`);
             await fs.writeFile(filePath, defObject.dumpAsDefFileContent());
         });
@@ -265,20 +291,13 @@ const tarUp = (contentDirectory: string) => new Promise((resolve, reject) => {
     tarStream.on('error', reject);
 });
 
-(async () => {
+export const run = async (course: RederlyCourse) => {
     await configurations.loadPromise;
-    const firstArg = process.argv[2];
-    const courseId = parseInt(firstArg, 10);
-    logger.info(`Exporting ${courseId}`);
-    if(_.isNaN(courseId)) {
-        throw new Error(`Could not parse first arguement ${firstArg}`);
-    }
     if(fs.existsSync(workingTempDirectory)) {
         await fs.remove(workingTempDirectory);
     }
     await fs.mkdirp(workingTempDirectory);
 
-    const course = await fetchData(courseId);
     const {
         contentDirectory
     } = await generateDefFiles(course, workingTempDirectory);
@@ -292,4 +311,4 @@ const tarUp = (contentDirectory: string) => new Promise((resolve, reject) => {
     await tarUp(contentDirectory);
 
     // await fs.remove(path.join(workingTempDirectory, courseId.toString()));
-})().catch(err => logger.error(err));
+}
