@@ -95,51 +95,58 @@ const generateTestPrivateFiles = async (privateProblemPaths: string[]) => {
  * @param contentDirectory where the private files should go
  */
 const copyPrivateFiles = async (course: RederlyCourse, privateProblemPaths: string[], contentDirectory: string) => {
-    const assetPromises: Promise<void>[] = [];
-    const privateCopyPromises = privateProblemPaths.map(async (privateProblemPath) => {
-        const from = path.join(webworkFileLocation, privateProblemPath);
-        const to = path.join(workingTempDirectory, course.id.toString(), course.name, privateProblemPath);
-        await fs.mkdirp(path.dirname(to));
-        await fs.copy(from, to);
-        const pgContent = (await fs.readFile(from)).toString();
-        const imageInPgFileMatches = getAllMatches(imageInPGFileRegex, pgContent);
-        for(const match of imageInPgFileMatches) {
-            let imagePath: string = match[1] ?? match[2];
-
-            perlQuotes.some(quote => {
-                const insideRegex = new RegExp(`${quote[0]}(.*)${quote[1]}`, 'g');
-                const quoteMatches = getAllMatches(insideRegex, imagePath);
-                if (quoteMatches.length > 1) {
-                    logger.warn(`findFilesFromPGFile: insideRegex expected 1 match but got ${quoteMatches.length}`);
-                }
-                // Will not be nil if different quotes
-                const thisMatch = quoteMatches[0];
-                if (!_.isNil(thisMatch)) {
-                    // index 1 should be first capture group, should not be nil
-                    if (_.isNil(thisMatch[1])) {
-                        logger.error(`findFilesFromPGFile: No capture group for quote ${quote[0]}`);
-                    } else {
-                        imagePath = thisMatch[1];
+    const assetPromises: Promise<string | null>[] = [];
+    const privateCopyPromises = privateProblemPaths.map(async (privateProblemPath): Promise<string | null> => {
+        try {
+            const from = path.join(webworkFileLocation, privateProblemPath);
+            const to = path.join(workingTempDirectory, course.id.toString(), course.name, privateProblemPath);
+            await fs.mkdirp(path.dirname(to));
+            await fs.copy(from, to);
+            const pgContent = (await fs.readFile(from)).toString();
+            const imageInPgFileMatches = getAllMatches(imageInPGFileRegex, pgContent);
+            for(const match of imageInPgFileMatches) {
+                let imagePath: string = match[1] ?? match[2];
+    
+                perlQuotes.some(quote => {
+                    const insideRegex = new RegExp(`${quote[0]}(.*)${quote[1]}`, 'g');
+                    const quoteMatches = getAllMatches(insideRegex, imagePath);
+                    if (quoteMatches.length > 1) {
+                        logger.warn(`findFilesFromPGFile: insideRegex expected 1 match but got ${quoteMatches.length}`);
                     }
-                    // bow out
-                    return true;
-                }
-                return false;
-            });
-            const imageFrom = path.join(webworkFileLocation, path.dirname(privateProblemPath), imagePath);
-            const imageTo = path.join(workingTempDirectory, course.id.toString(), course.name, path.dirname(privateProblemPath), imagePath);
-            const assetPromise = fs.copy(imageFrom, imageTo).catch(e => { 
-                throw new Error(`Prob: ${to}; ${e.toString()}`);
-            });
-            // This is to avoid promise rejection error, the promise is actually handled with assetCopyErrorPromises
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            assetPromise.catch(() => {});
-            assetPromises.push(assetPromise);
+                    // Will not be nil if different quotes
+                    const thisMatch = quoteMatches[0];
+                    if (!_.isNil(thisMatch)) {
+                        // index 1 should be first capture group, should not be nil
+                        if (_.isNil(thisMatch[1])) {
+                            logger.error(`findFilesFromPGFile: No capture group for quote ${quote[0]}`);
+                        } else {
+                            imagePath = thisMatch[1];
+                        }
+                        // bow out
+                        return true;
+                    }
+                    return false;
+                });
+                const imageFrom = path.join(webworkFileLocation, path.dirname(privateProblemPath), imagePath);
+                const imageTo = path.join(workingTempDirectory, course.id.toString(), course.name, path.dirname(privateProblemPath), imagePath);
+                const assetPromise = fs.copy(imageFrom, imageTo).catch(e => { 
+                    throw new Error(`Prob: ${to}; ${e.toString()}`);
+                });
+                // // This is to avoid promise rejection error, the promise is actually handled with assetCopyErrorPromises
+                // // eslint-disable-next-line @typescript-eslint/no-empty-function
+                // assetPromise.catch((err) => err.toString());
+                assetPromises.push(assetPromise.then(() => null).catch(err => err.toString()));
+            }
+        } catch (err) {
+            // work around since promise.allSettled not on data integrity server
+            return err.toString();
         }
+        return null;
     });
-    const privateCopyErrorPromises = (await Promise.allSettled(privateCopyPromises)).map(async (promise) => promise.status === 'rejected' && fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${promise.reason.toString()}\n`));
-    const assetCopyErrorPromises = (await Promise.allSettled(assetPromises)).map(async (promise) => promise.status === 'rejected' &&
-    fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${promise.reason.toString()}\n`));
+    // const privateCopyErrorPromises = (await Promise.allSettled(privateCopyPromises)).map(async (promise) => promise.status === 'rejected' && fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${promise.reason.toString()}\n`));
+    // const assetCopyErrorPromises = (await Promise.allSettled(assetPromises)).map(async (promise) => promise.status === 'rejected' && fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${promise.reason.toString()}\n`));
+    const privateCopyErrorPromises = (await Promise.all(privateCopyPromises)).map(async (errorString) => errorString && fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${errorString}\n`));
+    const assetCopyErrorPromises = (await Promise.all(assetPromises)).map(async (errorString) => errorString && fs.appendFile(path.join(contentDirectory, 'privateFileErrors.txt'), `${errorString}\n`));
     await Promise.all(privateCopyErrorPromises);
     await Promise.all(assetCopyErrorPromises);
 };
