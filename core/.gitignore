@@ -7,3 +7,4 @@ tmp
 build
 package-outputs
 test-webwork-files/private/my
+rederly-course-export-*.tgz
