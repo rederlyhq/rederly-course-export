@@ -6,11 +6,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: bahmutov/npm-install@v1
-      - name: eslint
+      - name: install-core
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: ./core
+      - name: install-server
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: ./server
+      - name: install-standalone
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: ./standalone
+      - name: eslint-core
         uses: reviewdog/action-eslint@v1
         with:
           reporter: github-pr-review
           level: warning
           eslint_flags: '--ext .tsx,.ts,.js .'
           fail_on_error: true
+          workdir: ./core
+      - name: eslint-server
+        uses: reviewdog/action-eslint@v1
+        with:
+          reporter: github-pr-review
+          level: warning
+          eslint_flags: '--ext .tsx,.ts,.js .'
+          fail_on_error: true
+          workdir: ./server
+      - name: eslint-standalone
+        uses: reviewdog/action-eslint@v1
+        with:
+          reporter: github-pr-review
+          level: warning
+          eslint_flags: '--ext .tsx,.ts,.js .'
+          fail_on_error: true
+          workdir: ./standalone

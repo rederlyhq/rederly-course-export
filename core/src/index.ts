@@ -13,7 +13,9 @@ const { workingTempDirectory, webworkFileLocation } = configurations.paths;
 let clearTempFilesPromise = Promise.resolve();
 if (configurations.app.autoDeleteTemp) {
     if (fs.existsSync(configurations.paths.workingTempDirectory)) {
-        clearTempFilesPromise = fs.remove(configurations.paths.workingTempDirectory).catch(err => {logger.error('Error clearing previous temp files', err)});
+        clearTempFilesPromise = fs.remove(configurations.paths.workingTempDirectory).catch(err => {
+            logger.error('Error clearing previous temp files', err);
+        });
     }
 }
 
