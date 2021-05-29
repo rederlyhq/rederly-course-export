@@ -20,7 +20,7 @@ export interface RederlyTopic {
     topicTypeId: number;
 
     questions?: RederlyQuestion[];
-    topicAssessmentInfo?: RederlyTopicAssessmentInfo;
+    topicAssessmentInfo?: RederlyTopicAssessmentInfo | null;
 }
 
 export interface RederlyQuestion {
@@ -31,7 +31,7 @@ export interface RederlyQuestion {
     maxAttempts: number;
     optional: boolean;
 
-    courseQuestionAssessmentInfo?: RederlyQuestionAssessmentInfo;
+    courseQuestionAssessmentInfo?: RederlyQuestionAssessmentInfo | null;
 }
 
 export interface RederlyQuestionAssessmentInfo {

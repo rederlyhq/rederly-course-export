@@ -46,7 +46,7 @@ import logger from 'rederly-course-export/lib/utilities/logger';
                         active: true
                     },
                     order: ['problemOrder'],
-                    attributes: ['id', 'problemNumber', 'webworkQuestionPath', 'weight', 'maxAttempts'],
+                    attributes: ['id', 'problemNumber', 'webworkQuestionPath', 'weight', 'maxAttempts', 'optional'],
                     required: false,
                     include: [{
                         model: CourseQuestionAssessmentInfo,
