@@ -6,10 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: install-standalone
-        uses: bahmutov/npm-install@v1
-        with:
-          working-directory: ./standalone
+      - name: Setup node
+        uses: actions/setup-node@v2
+      - run: npm --prefix ./standalone install
       - name: eslint-standalone
         uses: reviewdog/action-eslint@v1
         with:

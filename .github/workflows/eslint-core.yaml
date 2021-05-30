@@ -6,10 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: install-core
-        uses: bahmutov/npm-install@v1
-        with:
-          working-directory: ./core
+      - name: Setup node
+        uses: actions/setup-node@v2
+      - run: npm --prefix ./core install
       - name: eslint-core
         uses: reviewdog/action-eslint@v1
         with:

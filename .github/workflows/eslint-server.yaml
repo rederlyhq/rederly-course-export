@@ -6,10 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: install-server
-        uses: bahmutov/npm-install@v1
-        with:
-          working-directory: ./server
+      - name: Setup node
+        uses: actions/setup-node@v2
+      - run: npm --prefix ./server install
       - name: eslint-server
         uses: reviewdog/action-eslint@v1
         with:
