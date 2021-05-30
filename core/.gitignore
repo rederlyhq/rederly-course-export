@@ -1,6 +1,5 @@
 node_modules
 lib
-.env
 logs
 *.DS_Store
 tmp
@@ -8,3 +7,5 @@ build
 package-outputs
 test-webwork-files/private/my
 rederly-course-export-*.tgz
+*.env
+!example.env
