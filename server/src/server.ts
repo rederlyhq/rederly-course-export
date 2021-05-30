@@ -59,8 +59,10 @@ fastifyInstance.register((server, opts, next) => {
     next();
 }, { prefix: 'course-exports' });
 
-
-fastifyInstance.listen(configurations.server.port, (err, address) => {
-    if (err) throw err;
-    logger.info(`Server is now listening on ${address}`);
-});
+export const startServer = (): Promise<void> => new Promise<void>((resolve, reject) =>
+    fastifyInstance.listen(configurations.server.port, (err, address) => {
+        if (err) return reject(err);
+        logger.info(`Server is now listening on ${address}`);
+        resolve();
+    })
+);
