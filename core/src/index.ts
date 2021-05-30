@@ -8,6 +8,10 @@ import logger from './utilities/logger';
 import { getAllMatches } from './utilities/string-helper';
 import { RederlyCourse, RederlyTopic, RederlyQuestion } from './models';
 import { imageInPGFileRegex, dequotePerlQuotes } from '@rederly/rederly-utils/lib/importer';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { version } = require('../package.json');
+logger.info(`Running rederly-course-export core ${version}`);
 const { workingTempDirectory, webworkFileLocation } = configurations.paths;
 
 let clearTempFilesPromise = Promise.resolve();
@@ -109,9 +113,11 @@ const copyPrivateFiles = async (course: RederlyCourse, privateProblemPaths: stri
  * }
  */
 const generateDefFiles = async (course: RederlyCourse, tmpDirectory: string) => {
-    const workingDirectory = path.join(tmpDirectory, course.id.toString());
+    const workingDirectory = path.join(path.resolve(tmpDirectory), course.id.toString());
 
     const contentDirectory = path.join(workingDirectory, course.name);
+    // need to create this so tar does not fail for empty courses
+    await fs.mkdirp(contentDirectory);
     const unitPromises = course.units?.map(async (unit) => {
         const unitPath = path.join(contentDirectory, 'units', unit.name);
         await fs.mkdirp(unitPath);
