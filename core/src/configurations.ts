@@ -1,5 +1,8 @@
+import path from 'path';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({
+    path: process.env.DOTENV_LOCATION ? path.resolve(process.env.DOTENV_LOCATION) : undefined
+});
 import * as _ from 'lodash';
 import { LoggingLevelType, LOGGING_LEVEL } from './utilities/logger-logging-levels';
 import * as crypto from 'crypto';

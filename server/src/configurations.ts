@@ -35,6 +35,7 @@ const fromIntValue = (value: string | undefined | null): number | null => {
 
 const generateLog = (key: string, value: string | undefined, defaultValue: unknown): string => `Configuration for [${key}] not recognized with value [${value}] using default value [${defaultValue}]`;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function readStringValue(key: string, defaultValue: string): string;
 function readStringValue(key: string, defaultValue?: string | null | undefined): string | null;
 function readStringValue(key: string, defaultValue?: string | null | undefined): string | null {
@@ -59,6 +60,7 @@ function readIntValue(key: string, defaultValue?: number | null | undefined): nu
     return value;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function readBooleanValue(key: string, defaultValue: boolean): boolean;
 function readBooleanValue(key: string, defaultValue?: boolean | null | undefined): boolean | null;
 function readBooleanValue(key: string, defaultValue?: boolean | null | undefined): boolean | null {
@@ -74,6 +76,9 @@ function readBooleanValue(key: string, defaultValue?: boolean | null | undefined
 
 const configurations = {
     ...parentConfigurations,
+    server: {
+        port: readIntValue('SERVER_PORT', 3008),
+    },
     // monitoring: {
     //     memory: {
     //         debugThreshold: readIntValue('MONITORING_MEMORY_DEBUG_THRESHOLD', 40),
@@ -82,16 +87,6 @@ const configurations = {
     //         interval: readIntValue('MONITORING_MEMORY_INTERVAL', 10000)
     //     }
     // },
-    db: {
-        host: readStringValue('DB_HOST', 'localhost'),
-        port: readIntValue('DB_PORT', 5432),
-        name: readStringValue('DB_NAME', 'rederly'),
-        user: readStringValue('DB_USER', 'postgres'),
-        password: readStringValue('DB_PASSWORD', 'password'),
-        logging: readBooleanValue('DB_LOGGING', false),
-        sync: readBooleanValue('DB_SYNC', false),
-        statementTimeout: readIntValue('DB_STATEMENT_TIMEOUT', 60000),
-    },
     loadPromise: new Promise<void>(async (resolve, reject) => {
         try {
             // check parent options first

@@ -1,8 +1,8 @@
 {
-  "name": "rederly-course-export",
-  "version": "0.0.1",
+  "name": "rederly-course-export-server",
+  "version": "0.0.0",
   "description": "",
-  "main": "lib/index.js",
+  "main": "ts-built/index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
     "start:watch": "nodemon ./src/index.ts",
@@ -10,29 +10,29 @@
     "start:debug:watch": "nodemon --inspect=5858 ./src/index.ts",
     "lint": "eslint src/ --ext .ts",
     "build": "tsc",
-    "run:build": "node ./lib/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "run:build": "node ./ts-built/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npm --prefix ../core run build"
   },
   "author": "Rederly",
   "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "fastify": "^3.17.0",
+    "fs-extra": "^10.0.0",
+    "lodash": "^4.17.21",
+    "rederly-course-export": "file:../core"
+  },
   "devDependencies": {
     "@types/fs-extra": "^9.0.11",
     "@types/lodash": "^4.14.170",
     "@types/node": "^15.6.1",
-    "@types/tar": "^4.0.4",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "eslint": "^7.27.0",
+    "json-schema-to-typescript": "^10.1.4",
     "nodemon": "^2.0.7",
     "ts-node": "^10.0.0",
-    "typescript": "^4.2.4"
-  },
-  "dependencies": {
-    "@rederly/rederly-utils": "https://github.com/rederlyhq/rederly-utils/releases/download/v0.1.0/rederly-rederly-utils-0.1.0.tgz",
-    "dotenv": "^10.0.0",
-    "fs-extra": "^10.0.0",
-    "lodash": "^4.17.21",
-    "tar": "^6.1.0",
-    "winston": "^3.3.3"
+    "typescript": "^4.3.2"
   }
 }

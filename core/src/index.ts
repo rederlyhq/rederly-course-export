@@ -7,51 +7,21 @@ import tar from 'tar';
 import logger from './utilities/logger';
 import { getAllMatches } from './utilities/string-helper';
 import { RederlyCourse, RederlyTopic, RederlyQuestion } from './models';
+import { imageInPGFileRegex, dequotePerlQuotes } from '@rederly/rederly-utils/lib/importer';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { version } = require('../package.json');
+logger.info(`Running rederly-course-export core ${version}`);
 const { workingTempDirectory, webworkFileLocation } = configurations.paths;
 
-/** TODO move below to shared space because this is shared with the backend */
-const httpNegativeLookAhead = '(?!\\s*https?:)';
-const assetInPgFileExtensions = '(?:' + // Non capture group to or all the extensions together
-[
-    '[gG][iI][fF]', // gif
-    '[aA]?[pP][nN][gG]', // or apng, png
-    '[jJ][pP][eE]?[gG]', // or jpg, jpeg
-    '[sS][vV][gG]', // or svg
-    '[wW][eE][bB][pP]', // or webp
-]
-.join('|') // or extensions together
- + ')'; // close non extension capture group
-
-const perlQuotes: Array<[string, string]> = [
-    ['"', '"'], // Double quotes
-    ["'", "'"], // single quotes
-    ['`', '`'], // Backticks
-    ['qw\\s*\\(', '\\)'], // qw
-    ['qq\\s*\\(', '\\)'], // qq
-    ['q\\s*\\(', '\\)'], // q
-];
-
-const insideQuoteChacterRegex = (quote: string): string => {
-    // if is normal quote
-    if (quote === '"' || quote === "'") {
-        return `[^${quote}]`;
-    } else {
-        return '.';
+let clearTempFilesPromise = Promise.resolve();
+if (configurations.app.autoDeleteTemp) {
+    if (fs.existsSync(configurations.paths.workingTempDirectory)) {
+        clearTempFilesPromise = fs.remove(configurations.paths.workingTempDirectory).catch(err => {
+            logger.error('Error clearing previous temp files', err);
+        });
     }
-};
-
-export const imageInPGFileRegex = new RegExp(
-    [
-        '(?<!#.*)(?:', // Comment, using non capture group to spread amongst or
-        `(?:image\\s*\\(\\s*(${perlQuotes.map(perlQuote => `${perlQuote[0]}${httpNegativeLookAhead}.+?${perlQuote[1]}`).join('|')})\\s*(?:,(?:\\s|.)*?)?\\))`, // image call
-        '|(', // pipe for regex or with capture non image, asset looking strings
-        perlQuotes.map(perlQuote => `(?:${perlQuote[0]}${httpNegativeLookAhead}${insideQuoteChacterRegex(perlQuote[0])}*?\.${assetInPgFileExtensions}${perlQuote[1]})`).join('|'), // String check regex
-        ')', // close asset looking strings
-        ')', // end non capture group for negative look behind
-    ].join(''), 'g'
-);
-/** TODO move above to shared space because this is shared with the backend */
+}
 
 /**
  * 
@@ -105,28 +75,7 @@ const copyPrivateFiles = async (course: RederlyCourse, privateProblemPaths: stri
             const pgContent = (await fs.readFile(from)).toString();
             const imageInPgFileMatches = getAllMatches(imageInPGFileRegex, pgContent);
             for(const match of imageInPgFileMatches) {
-                let imagePath: string = match[1] ?? match[2];
-    
-                perlQuotes.some(quote => {
-                    const insideRegex = new RegExp(`${quote[0]}(.*)${quote[1]}`, 'g');
-                    const quoteMatches = getAllMatches(insideRegex, imagePath);
-                    if (quoteMatches.length > 1) {
-                        logger.warn(`findFilesFromPGFile: insideRegex expected 1 match but got ${quoteMatches.length}`);
-                    }
-                    // Will not be nil if different quotes
-                    const thisMatch = quoteMatches[0];
-                    if (!_.isNil(thisMatch)) {
-                        // index 1 should be first capture group, should not be nil
-                        if (_.isNil(thisMatch[1])) {
-                            logger.error(`findFilesFromPGFile: No capture group for quote ${quote[0]}`);
-                        } else {
-                            imagePath = thisMatch[1];
-                        }
-                        // bow out
-                        return true;
-                    }
-                    return false;
-                });
+                const imagePath: string = dequotePerlQuotes(match[1] ?? match[2]);
                 const imageFrom = path.join(webworkFileLocation, path.dirname(privateProblemPath), imagePath);
                 const imageTo = path.join(workingTempDirectory, course.id.toString(), course.name, path.dirname(privateProblemPath), imagePath);
                 const assetPromise = fs.copy(imageFrom, imageTo).catch(e => { 
@@ -164,9 +113,11 @@ const copyPrivateFiles = async (course: RederlyCourse, privateProblemPaths: stri
  * }
  */
 const generateDefFiles = async (course: RederlyCourse, tmpDirectory: string) => {
-    const workingDirectory = path.join(tmpDirectory, course.id.toString());
+    const workingDirectory = path.join(path.resolve(tmpDirectory), course.id.toString());
 
     const contentDirectory = path.join(workingDirectory, course.name);
+    // need to create this so tar does not fail for empty courses
+    await fs.mkdirp(contentDirectory);
     const unitPromises = course.units?.map(async (unit) => {
         const unitPath = path.join(contentDirectory, 'units', unit.name);
         await fs.mkdirp(unitPath);
@@ -182,7 +133,8 @@ const generateDefFiles = async (course: RederlyCourse, tmpDirectory: string) => 
     });
     await Promise.all(unitPromises ?? [Promise.resolve()]);
     return {
-        contentDirectory: contentDirectory
+        contentDirectory: contentDirectory,
+        workingDirectory: workingDirectory,
     };
 };
 
@@ -205,15 +157,17 @@ const tarUp = (contentDirectory: string) => new Promise<string>((resolve, reject
     tarStream.on('error', reject);
 });
 
-export const run = async (course: RederlyCourse): Promise<string> => {
+export const run = async (course: RederlyCourse): Promise<{
+    workingDirectory: string;
+    fileLocation: string;
+}> => {
     await configurations.loadPromise;
-    if(fs.existsSync(workingTempDirectory)) {
-        await fs.remove(workingTempDirectory);
-    }
+    await clearTempFilesPromise;
     await fs.mkdirp(workingTempDirectory);
 
     const {
-        contentDirectory
+        contentDirectory,
+        workingDirectory
     } = await generateDefFiles(course, workingTempDirectory);
 
     // const privateProblemPaths = await getPrivateProblemsInCourse(courseId);
@@ -222,8 +176,10 @@ export const run = async (course: RederlyCourse): Promise<string> => {
 
     await copyPrivateFiles(course, privateProblemPaths, contentDirectory);
 
-    const newFilename = await tarUp(contentDirectory);
-    logger.info(`"${newFilename}" generated`);
-    return newFilename;
-    // await fs.remove(path.join(workingTempDirectory, courseId.toString()));
+    const fileLocation = await tarUp(contentDirectory);
+    logger.info(`"${fileLocation}" generated`);
+    return {
+        fileLocation,
+        workingDirectory
+    };
 };

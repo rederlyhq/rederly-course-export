@@ -5,10 +5,26 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run",
+      "name": "Server",
       "type": "node",
       "request": "launch",
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run-script",
+        "start:debug:watch"
+      ],
+      "port": 5858,
+      // "outputCapture": "std"
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Standalone",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/standalone",
       "runtimeExecutable": "npm",
       "runtimeArgs": [
         "run-script",
