@@ -76,19 +76,25 @@ import logger from 'rederly-course-export/lib/utilities/logger';
     return course;
 };
 
-(async () => {
-    const firstArg = process.argv[2];
-    if (firstArg === 'noop') {
-        logger.info('noop passed, not starting server');
-        // Not exiting, want to make sure all promises and everything exits
-        return;
-    }
-    const courseId = parseInt(firstArg, 10);
-    logger.info(`Exporting ${courseId}`);
-    if(Number.isNaN(courseId)) {
-        throw new Error(`Could not parse first arguement ${firstArg}`);
-    }
-
+export const exportCourseById = async (courseId: number) => {
     const course = await fetchData(courseId);
-    await run(course);
-})().catch(err => logger.error(err));
+    return await run(course);
+}
+
+if (require.main === module) {
+    (async () => {
+        const firstArg = process.argv[2];
+        if (firstArg === 'noop') {
+            logger.info('noop passed, not starting server');
+            // Not exiting, want to make sure all promises and everything exits
+            return;
+        }
+        const courseId = parseInt(firstArg, 10);
+        logger.info(`Exporting ${courseId}`);
+        if(Number.isNaN(courseId)) {
+            throw new Error(`Could not parse first arguement ${firstArg}`);
+        }
+
+        await exportCourseById(courseId);
+    })().catch(err => logger.error(err));    
+}
