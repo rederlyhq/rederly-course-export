@@ -11,7 +11,10 @@
     "start:debug": "node --inspect=5858 -r ts-node/register ./src/index.ts",
     "start:debug:watch": "nodemon --inspect=5858 ./src/index.ts",
     "postinstall": "npm --prefix ../core run build && npm --prefix ../standalone run build",
-    "build": "tsc"
+    "install-all": "npm --prefix ../core install && npm --prefix ../standalone install && npm install",
+    "prune-production": "(cd ../core && npm prune --production) && (cd ../standalone && npm prune --production) && npm prune --production",
+    "build": "tsc",
+    "run:build": "node ./ts-built/index.js"
   },
   "author": "Rederly",
   "license": "GPL-3.0-or-later",
