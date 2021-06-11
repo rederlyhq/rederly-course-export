@@ -11,6 +11,7 @@
     "lint": "eslint src/ --ext .ts",
     "build": "tsc",
     "run:build": "node ./lib/index.js",
+    "prune-production": "npm prune --production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rederly",
