@@ -1,5 +1,6 @@
 node_modules
 ts-built
+lib
 logs
 *.DS_Store
 tmp

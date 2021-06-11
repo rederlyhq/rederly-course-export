@@ -79,14 +79,6 @@ const configurations = {
     server: {
         port: readIntValue('SERVER_PORT', 3008),
     },
-    // monitoring: {
-    //     memory: {
-    //         debugThreshold: readIntValue('MONITORING_MEMORY_DEBUG_THRESHOLD', 40),
-    //         warningThreshold: readIntValue('MONITORING_MEMORY_WARNING_THRESHOLD', 60),
-    //         errorThreshold: readIntValue('MONITORING_MEMORY_ERROR_THRESHOLD', 80),
-    //         interval: readIntValue('MONITORING_MEMORY_INTERVAL', 10000)
-    //     }
-    // },
     loadPromise: new Promise<void>(async (resolve, reject) => {
         try {
             // check parent options first

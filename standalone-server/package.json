@@ -5,10 +5,13 @@
   "main": "ts-built/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/ --ext .ts",
     "start": "ts-node src/index.ts",
     "start:watch": "nodemon ./src/index.ts",
     "start:debug": "node --inspect=5858 -r ts-node/register ./src/index.ts",
-    "start:debug:watch": "nodemon --inspect=5858 ./src/index.ts"
+    "start:debug:watch": "nodemon --inspect=5858 ./src/index.ts",
+    "postinstall": "npm --prefix ../core run build && npm --prefix ../standalone run build",
+    "build": "tsc"
   },
   "author": "Rederly",
   "license": "GPL-3.0-or-later",

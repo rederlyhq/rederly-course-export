@@ -2,7 +2,7 @@
   "name": "rederly-course-export-standalone",
   "version": "0.0.1",
   "description": "",
-  "main": "ts-built/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
     "start:watch": "nodemon ./src/index.ts",
@@ -10,7 +10,7 @@
     "start:debug:watch": "nodemon --inspect=5858 ./src/index.ts",
     "lint": "eslint src/ --ext .ts",
     "build": "tsc",
-    "run:build": "node ./ts-built/index.js",
+    "run:build": "node ./lib/index.js",
     "postinstall": "npm --prefix ../core run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

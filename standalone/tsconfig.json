@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "ES6",
-        "outDir": "ts-built",
+        "outDir": "lib",
         "resolveJsonModule": true,
 
         "noImplicitAny": true,

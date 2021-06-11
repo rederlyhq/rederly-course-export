@@ -157,10 +157,12 @@ const tarUp = (contentDirectory: string) => new Promise<string>((resolve, reject
     tarStream.on('error', reject);
 });
 
-export const run = async (course: RederlyCourse): Promise<{
+export interface RunResult {
     workingDirectory: string;
     fileLocation: string;
-}> => {
+}
+
+export const run = async (course: RederlyCourse): Promise<RunResult> => {
     await configurations.loadPromise;
     await clearTempFilesPromise;
     await fs.mkdirp(workingTempDirectory);
