@@ -4,6 +4,7 @@ on: [pull_request]
 
 jobs:
   build:
+    name: test / core
 
     runs-on: ubuntu-latest
 
