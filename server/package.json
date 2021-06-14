@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "main": "ts-built/index.js",
+  "repository": "https://github.com/rederlyhq/rederly-course-export",
   "scripts": {
     "start": "ts-node src/index.ts",
     "start:watch": "nodemon ./src/index.ts",
