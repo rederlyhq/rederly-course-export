@@ -8,3 +8,6 @@ package-outputs
 test-webwork-files/private/my
 *.env
 !example.env
+
+rederly-course-export-*.tgz
+rederly-course-export-standalone-*.tgz

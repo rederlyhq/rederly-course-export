@@ -10,8 +10,10 @@
     "start:watch": "nodemon ./src/index.ts",
     "start:debug": "node --inspect=5858 -r ts-node/register ./src/index.ts",
     "start:debug:watch": "nodemon --inspect=5858 ./src/index.ts",
-    "postinstall": "npm --prefix ../core run build && npm --prefix ../standalone run build",
-    "install-all": "npm --prefix ../core install && npm --prefix ../standalone install && npm install",
+    "preinstall": "npm run install-in-local-dependencies && npm run install-packed-local-dependencies",
+    "install-in-local-dependencies": "npm --prefix ../core install && npm --prefix ../standalone install",
+    "install-packed-local-dependencies": "npm install \"$(npm pack ../core  | tail -1)\" && npm install \"$(npm pack ../standalone  | tail -1)\"",
+    "install-all": "npm run install-in-local-dependencies && npm install",
     "prune-production": "(cd ../core && npm prune --production) && (cd ../standalone && npm prune --production) && npm prune --production",
     "build": "tsc",
     "run:build": "node ./ts-built/index.js"
@@ -22,6 +24,7 @@
     "@types/fs-extra": "^9.0.11",
     "@types/lodash": "^4.14.170",
     "@types/node": "^15.12.2",
+    "@types/validator": "^13.1.4",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
     "eslint": "^7.28.0",
@@ -34,7 +37,7 @@
     "fastify": "^3.17.0",
     "fs-extra": "^10.0.0",
     "lodash": "^4.17.21",
-    "rederly-course-export": "file:../core",
-    "rederly-course-export-standalone": "file:../standalone"
+    "rederly-course-export": "file:rederly-course-export-0.0.1.tgz",
+    "rederly-course-export-standalone": "file:rederly-course-export-standalone-0.0.1.tgz"
   }
 }

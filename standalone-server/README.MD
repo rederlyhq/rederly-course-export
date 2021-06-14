@@ -1,9 +1,14 @@
-# rederly-course-export standalone
-This subproject is a CLI that can connect to a database to fetch the data and generate an archive for a course
+# rederly-course-export standalone-server
+This is a convenience server that combines the server and the microservice. The microservice does not include a connection to the database to keep it more versatile and keep the databse more secure.
 
-## Core
-It uses the logic defined by [../core](../core). This was broken down this way so that an api could also just accept the data and create the archive (as a microservice)
+## Local dependencies
+It uses the logic defined by [../standalone](../standalone) and [../core](../core). This was broken down this way to reuse logic.
 
+# Test local dependencies
+When all new files are staged or committed you can use this command to make sure building and running will work for production
+```bash
+(cd .. && git clean -xfd) && npm install && npm run build && npm run prune-production && npm run run:build -- noop
+```
 
 # Configurations
 * Configurations are read from an environment variables in: src\configurations.ts
@@ -12,17 +17,10 @@ It uses the logic defined by [../core](../core). This was broken down this way s
 
 ### Available configurations
 
-#### Database
+#### Server
 | Environment variable | Description | Default value |
 | --- | --- | --- |
-| DB_HOST | The host url for the database | localhost |
-| DB_PORT | The connection port for the database | 5432 |
-| DB_NAME | The name of the database | rederly |
-| DB_USER | The user the login to the database | postgres |
-| DB_PASSWORD | The password for the user to login to the database | password |
-| DB_LOGGING | Whether or not queries should be output, used for debugging | false |
-| DB_SYNC | Whether or not to sync with the database | false |
-| DB_STATEMENT_TIMEOUT | Number of millis a db query is allowed to take (does not affect transactions) | 60000 |
+| SERVER_PORT | The connection port for the server | 3008 |
 
 ### Additional configurations
-Configurations required by core are located in it's readme [README](../core/README.MD)
+Configurations required by standalone are located in it's readme [README](../standalone/README.MD)

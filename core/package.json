@@ -12,6 +12,7 @@
     "build": "tsc",
     "run:build": "node ./lib/index.js",
     "prune-production": "npm prune --production",
+    "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rederly",
