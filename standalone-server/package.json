@@ -1,6 +1,6 @@
 {
   "name": "rederly-course-export-standalone-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A server to sit in front of the CLI (needs db connection).",
   "main": "ts-built/index.js",
   "repository": "https://github.com/rederlyhq/rederly-course-export",
