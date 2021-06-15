@@ -1,6 +1,11 @@
 # rederly-course-export
 This is a set of projects for use to creating rederly course exports.
 
+# Version bumping
+Version bump each of the packages once changes are done. Automatic tagging is turned of since this is a mono repo and should be tagged in the following way: `${name}--v${version_number}`.  
+Example: `standalone-server--v0.5.1`
+
+## Tag script
 ## core
 [core](./core) contains core logic for creating the rederly course archive
 
