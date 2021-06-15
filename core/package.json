@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "lib/index.js",
+  "repository": "https://github.com/rederlyhq/rederly-course-export",
   "scripts": {
     "start": "ts-node src/index.ts",
     "start:watch": "nodemon ./src/index.ts",
@@ -11,6 +12,8 @@
     "lint": "eslint src/ --ext .ts",
     "build": "tsc",
     "run:build": "node ./lib/index.js",
+    "prune-production": "npm prune --production",
+    "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rederly",

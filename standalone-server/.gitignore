@@ -1,6 +1,5 @@
 node_modules
 ts-built
-lib
 logs
 *.DS_Store
 tmp
@@ -9,3 +8,6 @@ package-outputs
 test-webwork-files/private/my
 *.env
 !example.env
+
+rederly-course-export-*.tgz
+rederly-course-export-standalone-*.tgz

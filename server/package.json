@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "main": "ts-built/index.js",
+  "repository": "https://github.com/rederlyhq/rederly-course-export",
   "scripts": {
     "start": "ts-node src/index.ts",
     "start:watch": "nodemon ./src/index.ts",
@@ -12,7 +13,8 @@
     "build": "tsc",
     "run:build": "node ./ts-built/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "npm --prefix ../core run build"
+    "postinstall": "npm --prefix ../core run prepare && npm --prefix ../core run build",
+    "prune-production": "(cd ../core && npm prune --production) && npm prune --production"
   },
   "author": "Rederly",
   "license": "GPL-3.0-or-later",

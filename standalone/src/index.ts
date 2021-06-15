@@ -6,7 +6,7 @@ import CourseUnitContent from './database/models/course-unit-content';
 import CourseWWTopicQuestion from './database/models/course-ww-topic-question';
 import TopicAssessmentInfo from './database/models/topic-assessment-info';
 
-import { run } from 'rederly-course-export';
+import { run, RunResult } from 'rederly-course-export';
 import logger from 'rederly-course-export/lib/utilities/logger';
 
 /**
@@ -76,19 +76,30 @@ import logger from 'rederly-course-export/lib/utilities/logger';
     return course;
 };
 
-(async () => {
-    const firstArg = process.argv[2];
-    if (firstArg === 'noop') {
-        logger.info('noop passed, not starting server');
-        // Not exiting, want to make sure all promises and everything exits
-        return;
-    }
-    const courseId = parseInt(firstArg, 10);
-    logger.info(`Exporting ${courseId}`);
-    if(Number.isNaN(courseId)) {
-        throw new Error(`Could not parse first arguement ${firstArg}`);
-    }
-
+export const exportCourseById = async (courseId: number): Promise<RunResult> => {
     const course = await fetchData(courseId);
-    await run(course);
-})().catch(err => logger.error(err));
+    return await run(course);
+};
+
+if (require.main === module) {
+    (async () => {
+        try {
+            const firstArg = process.argv[2];
+            if (firstArg === 'noop') {
+                logger.info('noop passed, not starting server');
+                // Not exiting, want to make sure all promises and everything exits
+                return;
+            }
+            const courseId = parseInt(firstArg, 10);
+            logger.info(`Exporting ${courseId}`);
+            if(Number.isNaN(courseId)) {
+                throw new Error(`Could not parse first arguement ${firstArg}`);
+            }
+    
+            await exportCourseById(courseId);
+        } catch (err) {
+            logger.error('Failed to run CLI', err);
+            process.exit(1);
+        }
+    })();
+}

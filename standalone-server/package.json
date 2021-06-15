@@ -1,0 +1,44 @@
+{
+  "name": "rederly-course-export-standalone-server",
+  "version": "0.0.0",
+  "description": "A server to sit in front of the CLI (needs db connection).",
+  "main": "ts-built/index.js",
+  "repository": "https://github.com/rederlyhq/rederly-course-export",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/ --ext .ts",
+    "start": "ts-node src/index.ts",
+    "start:watch": "nodemon ./src/index.ts",
+    "start:debug": "node --inspect=5858 -r ts-node/register ./src/index.ts",
+    "start:debug:watch": "nodemon --inspect=5858 ./src/index.ts",
+    "preinstall": "npm run install-in-local-dependencies && npm run install-packed-local-dependencies",
+    "install-in-local-dependencies": "npm --prefix ../core install && npm --prefix ../standalone install",
+    "install-packed-local-dependencies": "npm install \"$(npm pack ../core  | tail -1)\" && npm install \"$(npm pack ../standalone  | tail -1)\"",
+    "install-all": "npm run install-in-local-dependencies && npm install",
+    "prune-production": "(cd ../core && npm prune --production) && (cd ../standalone && npm prune --production) && npm prune --production",
+    "build": "tsc",
+    "run:build": "node ./ts-built/index.js"
+  },
+  "author": "Rederly",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.11",
+    "@types/lodash": "^4.14.170",
+    "@types/node": "^15.12.2",
+    "@types/validator": "^13.1.4",
+    "@typescript-eslint/eslint-plugin": "^4.26.1",
+    "@typescript-eslint/parser": "^4.26.1",
+    "eslint": "^7.28.0",
+    "nodemon": "^2.0.7",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "fastify": "^3.17.0",
+    "fs-extra": "^10.0.0",
+    "lodash": "^4.17.21",
+    "rederly-course-export": "file:rederly-course-export-0.0.1.tgz",
+    "rederly-course-export-standalone": "file:rederly-course-export-standalone-0.0.1.tgz"
+  }
+}
