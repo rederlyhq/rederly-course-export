@@ -12,8 +12,10 @@
     "lint": "eslint src/ --ext .ts",
     "build": "tsc",
     "run:build": "node ./lib/index.js",
-    "prepare": "npm --prefix ../core run prepare && npm run build",
-    "prune-production": "(cd ../core && npm prune --production) && npm prune --production",
+    "prepare": "npm run install-in-local-dependencies && npm run pack-local-dependencies && npm run install-packed-local-dependencies && npm run build",
+    "install-in-local-dependencies": "npm --prefix ../core install",
+    "pack-local-dependencies": "npm pack ../core",
+    "install-packed-local-dependencies": "npm install rederly-course-export-*.tgz",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rederly",
@@ -21,14 +23,17 @@
   "dependencies": {
     "cls-hooked": "^4.2.2",
     "dotenv": "^10.0.0",
+    "fastify": "^3.18.0",
+    "fs-extra": "^10.0.0",
     "lodash": "^4.17.21",
     "pg": "^8.6.0",
-    "rederly-course-export": "file:../core",
+    "rederly-course-export": "file:rederly-course-export-0.0.2.tgz",
     "sequelize": "^6.6.2"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.35",
     "@types/cls-hooked": "^4.3.3",
+    "@types/fs-extra": "^9.0.11",
     "@types/lodash": "^4.14.170",
     "@types/node": "^15.6.1",
     "@types/tar": "^4.0.4",

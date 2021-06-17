@@ -11,10 +11,12 @@ WORKDIR /app
 # Could copy over package.jsons first to optimize but local projects would make that a pain in the butt
 COPY ./ ./
 
-WORKDIR /app/standalone-server
-RUN npm install --silent
+WORKDIR /app/standalone
 
-RUN npm run build
+# CMD node -e "require('http').createServer().listen(8080)"
+
+# Fails to run preinstall which is generating local tgz files (which are needed to avoid sym links) https://stackoverflow.com/a/19132229
+RUN npm install --unsafe-perm
 
 RUN rm -r rederly-course-export-*.tgz tsconfig.json src
 
@@ -28,4 +30,4 @@ COPY --from=builder /app/standalone-server ./rederly
 # COPY --from=builder /app/.env ./rederly/
 
 WORKDIR /rederly
-CMD npm run run:build
+CMD npm run run:build server
