@@ -13,21 +13,24 @@ COPY ./ ./
 
 WORKDIR /app/standalone
 
-# CMD node -e "require('http').createServer().listen(8080)"
+# NPM behave differently if you use root user (not running prepare etc.)
+# --unsafe-perm becomes required in multiple places
+# https://stackoverflow.com/a/19132229
+# user is bob because... bob the builder...
+RUN adduser -S bob && chown -R bob ..
+USER bob
 
-# Fails to run preinstall which is generating local tgz files (which are needed to avoid sym links) https://stackoverflow.com/a/19132229
-RUN npm install --unsafe-perm
-
-RUN rm -r rederly-course-export-*.tgz tsconfig.json src
-
-# CMD npm run run:build
+# npm run build is part of npm install through prepare script
+# tgz file has to be deleted after npm install otherwise that will fail
+RUN npm run setup && npm install && rm -r rederly-course-export-*.tgz tsconfig.json src && npm prune --production
 
 # The instructions for second stage
 FROM node:14.15.3-alpine
 
 #WORKDIR /app
-COPY --from=builder /app/standalone-server ./rederly
+COPY --from=builder /app/standalone ./rederly-course-export-standalone
 # COPY --from=builder /app/.env ./rederly/
 
-WORKDIR /rederly
+WORKDIR /rederly-course-export-standalone
+
 CMD npm run run:build server
