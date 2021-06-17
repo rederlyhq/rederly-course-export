@@ -4,6 +4,8 @@ jobs:
   eslint:
     name: runner / eslint / server
     runs-on: ubuntu-latest
+      container:
+        options: --user 1001
     steps:
       - uses: actions/checkout@v1
       - name: Setup node
