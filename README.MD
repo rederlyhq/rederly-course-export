@@ -10,10 +10,7 @@ Example: `standalone-server--v0.5.1`
 [core](./core) contains core logic for creating the rederly course archive
 
 ## standalone
-[standalone](./standalone) handles a database fetch and calls core, for use as a cli
+[standalone](./standalone) handles a database fetch and calls core, for use as a cli or a standalone server
 
 ## server
 [server](./server) opens a server to accept data to send to core. This would be the micro service approach
-
-## standalone-server
-[standalone-server](./standalone-server) opens a server to accept data to send to core. This is less prefered since it requires more logic and a database connection, the normal server is dumb and just takes the data.
