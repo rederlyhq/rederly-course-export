@@ -1,0 +1,11 @@
+node_modules
+logs
+*.DS_Store
+tmp
+build
+package-outputs
+test-webwork-files/private/my
+!example.env
+
+# *.env
+# ts-built

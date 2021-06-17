@@ -1,0 +1,31 @@
+
+# The instructions for the first stage
+FROM node:14.15.3-alpine as builder
+
+# set to production to run build
+#ARG NODE_ENV=development
+
+# set working directory
+WORKDIR /app
+
+# Could copy over package.jsons first to optimize but local projects would make that a pain in the butt
+COPY ./ ./
+
+WORKDIR /app/standalone-server
+RUN npm install --silent
+
+RUN npm run build
+
+RUN rm -r rederly-course-export-*.tgz tsconfig.json src
+
+# CMD npm run run:build
+
+# The instructions for second stage
+FROM node:14.15.3-alpine
+
+#WORKDIR /app
+COPY --from=builder /app/standalone-server ./rederly
+# COPY --from=builder /app/.env ./rederly/
+
+WORKDIR /rederly
+CMD npm run run:build
