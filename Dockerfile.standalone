@@ -22,7 +22,7 @@ USER bob
 
 # npm run build is part of npm install through prepare script
 # tgz file has to be deleted after npm install otherwise that will fail
-RUN npm run setup && npm install && rm -r rederly-course-export-*.tgz tsconfig.json src && npm prune --production
+RUN npm install && rm -r rederly-course-export-*.tgz tsconfig.json src && npm prune --production
 
 # The instructions for second stage
 FROM node:14.15.3-alpine

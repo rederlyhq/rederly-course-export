@@ -13,6 +13,7 @@
     "build": "tsc",
     "run:build": "node ./lib/index.js",
     "setup": "npm --prefix ../core install && CORE_TGZ=\"$(npm pack ../core | tail -1)\" && npm install \"$CORE_TGZ\"",
+    "preinstall": "npm run setup",
     "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
