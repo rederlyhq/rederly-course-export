@@ -12,7 +12,7 @@ lint () {
   )
 }
 
-PROJECTS=("standalone" "server" "core" "standalone-server");
+PROJECTS=("standalone" "server" "core");
 
 for PROJECT in "${PROJECTS[@]}"; do
   # Exits if any linting fails
