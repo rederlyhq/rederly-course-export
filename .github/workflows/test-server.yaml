@@ -7,10 +7,6 @@ jobs:
     name: test / server
 
     runs-on: ubuntu-latest
-    container:
-      # Running as a non root user since things in node (like npm install and prepare) behave differently as root
-      image: ubuntu:latest
-      options: --user 1001
 
     strategy:
       matrix:
@@ -23,7 +19,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm --prefix ./server install
+    # --unsafe-perm Github uses root for install and this will break local dependencies and workflow, using container breaks the entire script
+    - run: npm --prefix ./server --unsafe-perm install
     # Needs to be before the try build step since it prunes dependencies
     # - name: Test
     #   run: npm test

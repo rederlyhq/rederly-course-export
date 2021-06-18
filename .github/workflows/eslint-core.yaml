@@ -4,16 +4,13 @@ jobs:
   eslint:
     name: runner / eslint / core
     runs-on: ubuntu-latest
-    container:
-      # Running as a non root user since things in node (like npm install and prepare) behave differently as root
-      image: ubuntu:latest
-      options: --user 1001
       
     steps:
       - uses: actions/checkout@v1
       - name: Setup node
         uses: actions/setup-node@v2
-      - run: npm --prefix ./core install
+      # --unsafe-perm Github uses root for install and this will break local dependencies and workflow, using container breaks the entire script
+      - run: npm --prefix ./core --unsafe-perm install
       - name: eslint-core
         uses: reviewdog/action-eslint@v1
         with:
