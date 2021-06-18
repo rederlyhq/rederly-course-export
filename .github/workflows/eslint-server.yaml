@@ -4,8 +4,10 @@ jobs:
   eslint:
     name: runner / eslint / server
     runs-on: ubuntu-latest
-      container:
-        options: --user 1001 # Running as a non root user since things in node (like npm install and prepare) behave differently as root
+    container:
+      # Running as a non root user since things in node (like npm install and prepare) behave differently as root
+      image: ubuntu:latest
+      options: --user 1001
     steps:
       - uses: actions/checkout@v1
       - name: Setup node

@@ -7,8 +7,10 @@ jobs:
     name: test / server
 
     runs-on: ubuntu-latest
-      container:
-        options: --user 1001 # Running as a non root user since things in node (like npm install and prepare) behave differently as root
+    container:
+      # Running as a non root user since things in node (like npm install and prepare) behave differently as root
+      image: ubuntu:latest
+      options: --user 1001
 
     strategy:
       matrix:
