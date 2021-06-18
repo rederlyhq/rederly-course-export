@@ -24,7 +24,7 @@
     "fastify": "^3.17.0",
     "fs-extra": "^10.0.0",
     "lodash": "^4.17.21",
-    "rederly-course-export": "file:rederly-course-export-0.0.2.tgz"
+    "rederly-course-export": "file:rederly-course-export-0.0.3.tgz"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.11",
