@@ -4,13 +4,12 @@ jobs:
   eslint:
     name: runner / eslint / standalone
     runs-on: ubuntu-latest
-      container:
-        options: --user 1001
     steps:
       - uses: actions/checkout@v1
       - name: Setup node
         uses: actions/setup-node@v2
-      - run: npm --prefix ./standalone install
+      # --unsafe-perm Github uses root for install and this will break local dependencies and workflow, using container breaks the entire script
+      - run: npm --prefix ./standalone --unsafe-perm install
       - name: eslint-standalone
         uses: reviewdog/action-eslint@v1
         with:
