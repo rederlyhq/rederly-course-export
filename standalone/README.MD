@@ -15,6 +15,11 @@ It uses the logic defined by [../core](../core). This was broken down this way s
 #### Database
 | Environment variable | Description | Default value |
 | --- | --- | --- |
+| SERVER_PORT | A port to listen on | 3008 |
+
+#### Database
+| Environment variable | Description | Default value |
+| --- | --- | --- |
 | DB_HOST | The host url for the database | localhost |
 | DB_PORT | The connection port for the database | 5432 |
 | DB_NAME | The name of the database | rederly |

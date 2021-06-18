@@ -82,6 +82,9 @@ const configurations = {
     //         interval: readIntValue('MONITORING_MEMORY_INTERVAL', 10000)
     //     }
     // },
+    server: {
+        port: readIntValue('SERVER_PORT', 3008),
+    },
     db: {
         host: readStringValue('DB_HOST', 'localhost'),
         port: readIntValue('DB_PORT', 5432),

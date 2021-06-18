@@ -3,7 +3,7 @@ const { version } = require('../package.json');
 import logger from 'rederly-course-export/lib/utilities/logger';
 import fs from 'fs-extra';
 import fastify, { FastifyRequest } from 'fastify';
-import { exportCourseById } from 'rederly-course-export-standalone';
+import { exportCourseById } from './logic';
 
 import configurations from './configurations';
 const fastifyInstance = fastify({
