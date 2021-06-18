@@ -57,7 +57,8 @@ fastifyInstance.register((server, opts, next) => {
 }, { prefix: 'course-exports' });
 
 export const startServer = (): Promise<void> => new Promise<void>((resolve, reject) =>
-    fastifyInstance.listen(configurations.server.port, (err, address) => {
+    // By default fastify listens on 127.0.0.1 (unlike require('http').createServer). This breaks docker containers so setting host to 0.0.0.0
+    fastifyInstance.listen(configurations.server.port, '0.0.0.0', (err, address) => {
         if (err) return reject(err);
         logger.info(`Server is now listening on ${address}`);
         resolve();
