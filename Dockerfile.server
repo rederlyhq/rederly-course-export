@@ -10,6 +10,8 @@ WORKDIR /app
 
 # Could copy over package.jsons first to optimize but local projects would make that a pain in the butt
 COPY ./ ./
+# Make sure env file exists for copy
+RUN touch /app/.env
 
 WORKDIR /app/server
 
